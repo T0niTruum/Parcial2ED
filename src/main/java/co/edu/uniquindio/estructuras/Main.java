@@ -1,13 +1,36 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+package main.java.co.edu.uniquindio.estructuras;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+import co.edu.uniquindio.estructuras.ejercicios.Punto2Historial;
+import co.edu.uniquindio.estructuras.ejercicios.Punto4ABB;
+
+import java.util.Scanner;
+
+/**
+ * Clase principal — Menú / Ejecutor de pruebas del parcial 2.
+ */
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n===== PARCIAL 2 - ESTRUCTURAS DE DATOS =====");
+            System.out.println("1. Punto 2 - Historial de acciones (Pila)");
+            System.out.println("2. Punto 4 - Árbol Binario de Búsqueda (Equipos)");
+            System.out.println("0. Salir");
+            System.out.print("Seleccione una opción: ");
+            opcion = scanner.nextInt();
+
+            switch (opcion) {
+                case 1 -> Punto2Historial.ejecutar();
+                case 2 -> Punto4ABB.ejecutar();
+                case 0 -> System.out.println("¡Hasta luego!");
+                default -> System.out.println("Opción no válida.");
+            }
+        } while (opcion != 0);
+
+        scanner.close();
     }
 }
+
