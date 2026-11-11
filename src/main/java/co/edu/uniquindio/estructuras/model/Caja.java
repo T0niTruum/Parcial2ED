@@ -9,8 +9,13 @@ public class Caja {
         this.valor = valor;
     }
 
-    public String getCodigo() { return codigo; }
-    public int getValor() { return valor; }
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public int getValor() {
+        return valor;
+    }
 
     @Override
     public String toString() {
