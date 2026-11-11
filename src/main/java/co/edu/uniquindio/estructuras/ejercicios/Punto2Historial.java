@@ -2,6 +2,8 @@ package co.edu.uniquindio.estructuras.ejercicios;
 
 import co.edu.uniquindio.estructuras.estructuras.Pila;
 
+import java.util.Scanner;
+
 /**
  * Punto 2 — Operaciones sobre una Pila propia.
  *
@@ -31,6 +33,9 @@ public class Punto2Historial {
      * @throws IllegalArgumentException si inicio < 1, fin < inicio o fin > tamaño de la pila.
      */
     public static <T> Pila<T> obtenerSegmento(Pila<T> pila, int inicio, int fin) {
+        if (pila == null) {
+            throw new IllegalArgumentException("La pila no puede ser null.");
+        }
         if (inicio < 1 || fin < inicio) {
             throw new IllegalArgumentException(
                     "Rango inválido: inicio=" + inicio + ", fin=" + fin);
@@ -42,77 +47,58 @@ public class Punto2Historial {
                     "fin=" + fin + " supera el tamaño de la pila (" + total + ").");
         }
 
-        // ── Paso 1: volcar la pila original en una pila auxiliar
-        //    para poder recorrerla sin destruirla.
-        //    Se usa una segunda pila temporal para restaurar al final.
         Pila<T> auxiliar = new Pila<>();
         Pila<T> segmento = new Pila<>();
 
-        // Volcamos todos los elementos a 'auxiliar' (invierte el orden)
-        Pila<T> copia = clonar(pila);
+        // La copia preserva el orden y deja la pila original restaurada.
+        Pila<T> copia = clonar(pila, auxiliar);
 
-        // ── Paso 2: recorrer desde el tope contando posiciones
         int posicion = 1;
-        // Usamos una pila intermedia para recoger el segmento en orden inverso
         Pila<T> segmentoInverso = new Pila<>();
 
         while (!copia.estaVacia()) {
             T elemento = copia.pop();
-            if (posicion >= inicio && posicion <= fin) {
-                // Los elementos salen del tope al fondo: A6(pos1), A5(pos2)...
-                // Al apilar en segmentoInverso quedan: A3(tope) → A5(fondo)
+            if (posicion >= inicio) {
                 segmentoInverso.push(elemento);
             }
             posicion++;
-            if (posicion > fin) break; // ya no hay más que recolectar
+            if (posicion > fin) {
+                break;
+            }
         }
 
-        // ── Paso 3: invertir segmentoInverso para que el tope quede
-        //    en la posición más cercana al tope original (A5 en el ejemplo)
         while (!segmentoInverso.estaVacia()) {
             segmento.push(segmentoInverso.pop());
         }
 
         return segmento;
-        // La pila original nunca fue tocada; sólo se trabajó sobre 'copia'.
     }
 
     /**
-     * Crea una copia independiente de la pila preservando el orden original.
+     * Crea una copia independiente de la pila preservando su orden.
      */
-    private static <T> Pila<T> clonar(Pila<T> original) {
-        // Primera pasada: invertir en auxiliar
-        Pila<T> aux = new Pila<>();
-        Pila<T> aux2 = new Pila<>();
-
-        // Necesitamos una copia sin tocar 'original'.
-        // Estrategia: pasar todos a aux (queda invertido), luego de aux a aux2 (orden original).
-        // Para eso necesitamos poder recorrer la original sin modificarla —
-        // pero pop() la modifica. Usamos un truco de doble inversión con vaciado y re-llenado:
-
-        // ── vaciamos 'original' a 'aux' (invierte)
+    private static <T> Pila<T> clonar(Pila<T> original, Pila<T> auxiliar) {
         Pila<T> temp = new Pila<>();
         while (!original.estaVacia()) {
             temp.push(original.pop());
         }
-        // temp tiene los elementos con el fondo original arriba.
-        // Ahora restituimos original Y llenamos aux2 (copia).
+
         while (!temp.estaVacia()) {
-            T e = temp.pop();
-            original.push(e); // restaura
-            aux2.push(e);     // copia en mismo orden
+            T elemento = temp.pop();
+            original.push(elemento);
+            auxiliar.push(elemento);
         }
-        // original queda restaurada, aux2 es una copia con el mismo tope
-        return aux2;
+        return auxiliar;
     }
 
-    // Método de demostración
-    
-    public static void ejecutar() {
+    /**
+     * Ejecuta el caso predeterminado del parcial y muestra que la pila fuente
+     * conserva todos sus elementos y su orden.
+     */
+    public static void ejecutarDatosQuemados() {
         System.out.println("\n--- PRUEBA PUNTO 2: HISTORIAL DE LA PILA ---");
 
         Pila<String> historial = new Pila<>();
-        // Se cargan de A1 (fondo) a A6 (cima) según el enunciado del parcial
         historial.push("A1");
         historial.push("A2");
         historial.push("A3");
@@ -120,7 +106,8 @@ public class Punto2Historial {
         historial.push("A5");
         historial.push("A6");
 
-        System.out.println("Pila original creada con 6 elementos (A6 en la cima).");
+        String estadoOriginal = historial.toString();
+        System.out.println("Pila original: " + estadoOriginal);
 
         int inicio = 2;
         int fin = 4;
@@ -128,12 +115,81 @@ public class Punto2Historial {
 
         Pila<String> segmento = obtenerSegmento(historial, inicio, fin);
 
-        System.out.println("Pila segmento retornada (tamaño: " + segmento.size() + "):");
-        System.out.println("Cima del segmento: " + segmento.peek()); // Esperado: A5
+        System.out.println("Segmento obtenido: " + segmento);
+        System.out.println("Resultado esperado: A5, A4, A3 (cima a fondo).");
+        System.out.println("Pila original después de la consulta: " + historial);
+        System.out.println("¿La pila original quedó intacta? "
+                + estadoOriginal.equals(historial.toString()));
+    }
 
-        System.out.println("Verificando pila original (debe conservar sus 6 elementos intactos):");
-        System.out.println("Cima de la pila original: " + historial.peek()); // Esperado: A6
-        System.out.println("Tamaño actual de la pila original: " + historial.size());
+    /**
+     * Solicita al usuario los elementos de una pila y las posiciones del
+     * segmento que desea consultar.
+     *
+     * @param scanner lector de consola compartido con el menú principal
+     */
+    public static void ejecutarDatosDinamicos(Scanner scanner) {
+        System.out.println("\n--- PUNTO 2: INGRESO MANUAL DEL HISTORIAL ---");
+        Integer cantidad = leerEntero(scanner, "¿Cuántos elementos desea ingresar? ", 0);
+        if (cantidad == null) {
+            return;
+        }
+        if (cantidad == 0) {
+            System.out.println("La pila está vacía; no hay segmento que consultar.");
+            return;
+        }
+
+        Pila<String> historial = new Pila<>();
+        for (int i = 1; i <= cantidad; i++) {
+            String elemento = leerLinea(scanner, "Ingrese el elemento " + i + ": ");
+            if (elemento == null) {
+                return;
+            }
+            historial.push(elemento);
+        }
+
+        System.out.println("Pila creada (cima a fondo): " + historial);
+        Integer inicio = leerEntero(scanner, "Posición inicial (desde 1, contando desde la cima): ", 1);
+        if (inicio == null) {
+            return;
+        }
+        Integer fin = leerEntero(scanner, "Posición final (desde la cima): ", 1);
+        if (fin == null) {
+            return;
+        }
+
+        String estadoOriginal = historial.toString();
+        try {
+            Pila<String> segmento = obtenerSegmento(historial, inicio, fin);
+            System.out.println("Segmento obtenido (cima a fondo): " + segmento);
+            System.out.println("Pila original después de la consulta: " + historial);
+            System.out.println("¿La pila original quedó intacta? "
+                    + estadoOriginal.equals(historial.toString()));
+        } catch (IllegalArgumentException e) {
+            System.out.println("No se pudo obtener el segmento: " + e.getMessage());
+        }
+    }
+
+    private static Integer leerEntero(Scanner scanner, String mensaje, int minimo) {
+        while (true) {
+            String entrada = leerLinea(scanner, mensaje);
+            if (entrada == null) {
+                return null;
+            }
+            try {
+                int valor = Integer.parseInt(entrada.trim());
+                if (valor >= minimo) {
+                    return valor;
+                }
+                System.out.println("Ingrese un entero mayor o igual que " + minimo + ".");
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada no válida. Ingrese un número entero.");
+            }
+        }
+    }
+
+    private static String leerLinea(Scanner scanner, String mensaje) {
+        System.out.print(mensaje);
+        return scanner.hasNextLine() ? scanner.nextLine() : null;
     }
 }
-
