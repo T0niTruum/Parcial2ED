@@ -89,7 +89,7 @@ public class Punto1Cajas {
     }
 
     public static void ejecutar() {
-        System.out.println("\n--- PUNTO 1: RETIRO DE CAJAS ---");
+        System.out.println("\n PUNTO 1: RETIRO DE CAJAS ");
 
         Pila<Caja> pila = crearPilaInicial();
         System.out.println("Pila inicial: " + pila);
