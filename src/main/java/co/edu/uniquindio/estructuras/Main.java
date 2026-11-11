@@ -1,4 +1,4 @@
-package main.java.co.edu.uniquindio.estructuras;
+package co.edu.uniquindio.estructuras;
 
 import co.edu.uniquindio.estructuras.ejercicios.Punto2Historial;
 import co.edu.uniquindio.estructuras.ejercicios.Punto4ABB;
